@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { Coffee } from './coffee.entity';
 import { CoffeeService } from './coffee.service';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/vendors/guards/auth.guard';
 import { GqlUser } from 'src/user/user.decorator';
 
 @Resolver((of) => Coffee)
