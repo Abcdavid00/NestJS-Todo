@@ -1,7 +1,8 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { type } from 'os';
 import { Task } from 'src/task/task.entity';
 import { User } from 'src/user/user.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 @ObjectType()
@@ -10,27 +11,28 @@ export class Sprint {
     @Field((type) => ID)
     id: string;
 
-    @Column()
-    // @Field()
-    task: Task[]
+    @OneToMany(() => Task, task => task.sprint)
+    @Field((type) => [Task], { nullable: true })
+    tasks: Task[]
 
     @Column()
     @Field()
     description: string
 
-    @Column()
-    @Field()
+    @ManyToOne(() => User, user => user.administratedSprints)
+    @Field((type) => User)
     admin: User
 
-    @Column()
-    // @Field()
+    @ManyToMany(() => User, user => user.joinedSprints)
+    @JoinTable()
+    @Field((type) => [User], { nullable: true })
     members: User[]
 
-    @Column()
-    @Field()
-    createDate: string
+    @CreateDateColumn()
+    @Field((type) => Date)
+    createDate: Date
 
-    @Column()
-    @Field()
-    modifydDate: string
+    @UpdateDateColumn()
+    @Field((type) => Date)
+    modifydDate: Date
 }

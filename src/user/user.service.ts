@@ -10,8 +10,6 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  // Error enum
-
   async checkUsername(username: string): Promise<boolean> {
     const user = await this.userRepository.findOne({
       where: { username: username },
@@ -50,37 +48,24 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  // async registerUser(
-  //   username: string,
-  //   password: string,
-  //   email: string,
-  //   displayName: string,
-  // ): Promise<User | undefined> {
-  //   const checker: Promise<boolean>[] = [
-  //     this.checkUsername(username),
-  //     this.checkEmail(email),
-  //   ];
-  //   const [nameCheck, emailCheck] = await Promise.all(checker);
-  //   console.log(nameCheck, emailCheck);
-  //   if (!nameCheck) {
-  //     return [undefined, ErrorCode.UsernameAlreadyExists];
-  //   }
-  //   if (!emailCheck) {
-  //     return [undefined, ErrorCode.EmailAlreadyExists];
-  //   }
-  //   const now = new Date().toISOString();
-  //   const hashedPassword = await hash(password, 10);
-  //   const user = this.userRepository.create({
-  //     username,
-  //     password: hashedPassword,
-  //     email,
-  //     displayName,
-  //   });
-  //   return [await this.userRepository.save(user), ErrorCode.Success];
-  // }
-
   async getUser(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return user;
+  }
+
+  async findByUsername(username: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -152,18 +137,4 @@ export class UserService {
       where: [{ username: usernameOrEmail }, { email: usernameOrEmail }]
     });
   }
-
-  // async login(nameOrEmail: string, password: string): Promise<[User| undefined, ErrorCode]> {
-  //   const user = await this.userRepository.findOne({
-  //     where: [{ username: nameOrEmail }, { email: nameOrEmail }],
-  //   });
-  //   if (!user) {
-  //     return [undefined, ErrorCode.UserNotFound];
-  //   }
-  //   const match = await compare(password, user.password);
-  //   if (!match) {
-  //     return [undefined, ErrorCode.InvalidPassword];
-  //   }
-  //   return [user, ErrorCode.Success];
-  // }
 }

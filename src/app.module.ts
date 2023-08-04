@@ -27,6 +27,7 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
       database: DATABASE,
       entities: ENTITIES,
       synchronize: true,
+
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -36,7 +37,7 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
         'Apollo-Require-Preflight': 'true',
       },
     }),
-    CoffeeModule,
+    // CoffeeModule,
     UserModule,
     TaskModule,
     SprintModule,

@@ -5,9 +5,9 @@ import { Task } from "./task/task.entity";
 import { User } from "./user/user.entity";
 
 export const ENTITIES = [
-    Coffee,
+    // Coffee,
     Priority,
     User,
-    // Task,
-    // Sprint
+    Task,
+    Sprint
 ]

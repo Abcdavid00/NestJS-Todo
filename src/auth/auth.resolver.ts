@@ -24,7 +24,6 @@ export class AuthResolver {
         @Args ('usernameOrEmail') usernameOrEmail: string,
         @Args ('password') password: string,
     ) {
-        console.log("Auth Resolver signIn")
         const [user, token] = await this.authService.LogIn(usernameOrEmail, password);
         const loginResult = new LoginResult();
         loginResult.user = user;
