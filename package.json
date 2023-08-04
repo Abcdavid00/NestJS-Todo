@@ -8,7 +8,7 @@
   "scripts": {
     "up:dev": "docker-compose -f compose.dev.yml up --build",
     "down:dev": "docker-compose -f compose.dev.yml down",
-    "restart_docker": "docker-compose -f compose.dev.yml down && docker-compose -f compose.dev.yml up --build",
+    "restart-docker": "docker-compose -f compose.dev.yml down && docker-compose -f compose.dev.yml up --build",
     "up:prod": "docker-compose -f compose.yml up --build",
     "down:prod": "docker-compose -f compose.yml down",
     "build": "nest build",

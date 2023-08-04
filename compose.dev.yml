@@ -45,5 +45,5 @@ services:
       - todo_network
 
 networks:
-  coffee_network:
+  todo_network:
     driver: bridge
