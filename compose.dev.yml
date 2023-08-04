@@ -7,17 +7,18 @@ services:
       dockerfile: Dockerfile.dev
     restart: always
     environment:
+      DEV: true
       PORT: $APP_PORT
       JWT_SECRET: $JWT_SECRET
       MYSQL_DATABASE: $MYSQL_DATABASE
       MYSQL_USER: $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
     ports:
-      - 3000:$APP_PORT
+      - $APP_PORT:$APP_PORT
     volumes:
       - ./src:/app/src
     networks:
-      - coffee_network
+      - todo_network
     depends_on:
       - db
 
@@ -33,7 +34,7 @@ services:
     volumes:
       - ./Docker/Dev/MySQL:/var/lib/mysql
     networks:
-      - coffee_network
+      - todo_network
 
   adminer:
     image: adminer
@@ -41,7 +42,7 @@ services:
     ports:
       - 8080:8080
     networks:
-      - coffee_network
+      - todo_network
 
 networks:
   coffee_network:

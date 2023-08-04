@@ -26,7 +26,7 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
       password: DATABASE_PASSWORD,
       database: DATABASE,
       entities: ENTITIES,
-      // synchronize: true,
+      synchronize: true,
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN npm i -g @nestjs/cli
+RUN yarn global add @nestjs/cli
 
 COPY package.json yarn.lock ./
 
