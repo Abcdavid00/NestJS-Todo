@@ -1,0 +1,48 @@
+version: '4'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: always
+    environment:
+      PORT: $APP_PORT
+      JWT_SECRET: $JWT_SECRET
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - 3000:$APP_PORT
+    volumes:
+      - ./src:/app/src
+    networks:
+      - coffee_network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    restart: always
+    # platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    volumes:
+      - ./Docker/Dev/MySQL:/var/lib/mysql
+    networks:
+      - coffee_network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - coffee_network
+
+networks:
+  coffee_network:
+    driver: bridge
