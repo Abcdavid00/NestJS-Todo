@@ -7,7 +7,7 @@ import { GqlUser } from './user.decorator';
 
 @Resolver()
 export class UserResolver {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Query((returns) => User)
   async getUser(@Args('id') id: string) {
