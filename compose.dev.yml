@@ -40,7 +40,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8083:8080
     networks:
       - todo_network
 
