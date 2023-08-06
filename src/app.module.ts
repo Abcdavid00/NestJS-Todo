@@ -10,6 +10,7 @@ import { TaskModule } from './task/task.module';
 import { SprintModule } from './sprint/sprint.module';
 import { PriorityModule } from './priority/priority.module';
 import { AuthModule } from './auth/auth.module';
+import graphQLConfig from './configs/db/graphQL';
 
 const DATABASE = process.env.MYSQL_DATABASE;
 const DATABASE_USER = process.env.MYSQL_USER;
@@ -28,14 +29,7 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
       synchronize: true,
 
     }),
-    GraphQLModule.forRoot({
-      autoSchemaFile: true,
-      // typePaths: ['./**/*.graphql'],
-      driver: ApolloDriver,
-      cors: {
-        origin: '*',
-      }
-    }),
+    GraphQLModule.forRoot(graphQLConfig),
     UserModule,
     TaskModule,
     SprintModule,
