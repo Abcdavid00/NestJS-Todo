@@ -32,6 +32,9 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
       autoSchemaFile: true,
       // typePaths: ['./**/*.graphql'],
       driver: ApolloDriver,
+      cors: {
+        origin: '*',
+      }
     }),
     UserModule,
     TaskModule,
