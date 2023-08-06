@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Priority } from '../priority/priority.entity';
 import { User } from "src/user/user.entity";
 import { Sprint } from "src/sprint/sprint.entity";
@@ -12,25 +12,25 @@ export class Task {
     @Field((type) => ID)
     id: string;
 
-    @Column("varchar", { length: 64 })
+    @Column("nvarchar", { length: 64 })
     @Field((type) => String)
     name: string;
 
-    @Column("varchar", { length: 512, nullable: true })
+    @Column("nvarchar", { length: 512, nullable: true })
     @Field((type) => String, { nullable: true })
     description: string;
 
-    @Column("varchar", { length: 64 })
-    @Field((type) => String)
-    createDate: string;
+    @CreateDateColumn()
+    @Field((type) => Date)
+    createDate: Date
 
-    @Column("varchar", { length: 64 })
-    @Field((type) => String)
-    modifydDate: string;
+    @UpdateDateColumn()
+    @Field((type) => Date)
+    modifydDate: Date
 
-    @Column("varchar", { length: 64 })
-    @Field((type) => String)
-    expireDay: string;
+    @Column("datetime")
+    @Field((type) => Date)
+    expireDate: Date;
 
     @Column("varchar", { length: 64 })
     @Field((type) => String)

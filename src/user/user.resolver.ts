@@ -24,7 +24,32 @@ export class UserResolver {
     return this.userService.findByEmail(email);
   }
 
-//   @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => User)
+  async changeUsername(
+    @GqlUser() user: User,
+    @Args('username') username: string,
+  ) {
+    return this.userService.updateUsername(user.id, username);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => User)
+  async changeEmail(@GqlUser() user: User, @Args('email') email: string) {
+    return this.userService.updateEmail(user.id, email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => User)
+  async changePassword(
+    @GqlUser() user: User,
+    @Args('oldPassword') oldPassword: string,
+    @Args('newPassword') newPassword: string,
+  ) {
+    return this.userService.changePassword(user.id, oldPassword, newPassword);
+  }
+
+  @UseGuards(AuthGuard)
   @Mutation((returns) => User)
   async updateUserInfo(
     @GqlUser() user: User,

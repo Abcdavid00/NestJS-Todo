@@ -1,5 +1,4 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { type } from 'os';
 import { Task } from 'src/task/task.entity';
 import { User } from 'src/user/user.entity';
 import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
@@ -15,11 +14,15 @@ export class Sprint {
     @Field((type) => [Task], { nullable: true })
     tasks: Task[]
 
-    @Column()
-    @Field()
+    @Column("nvarchar", { length: 50 })
+    @Field((type) => String)
+    name: string
+
+    @Column("nvarchar", { length: 500, nullable: true })
+    @Field((type) => String, { nullable: true })
     description: string
 
-    @ManyToOne(() => User, user => user.administratedSprints)
+    @ManyToOne(() => User, user => user.administratingSprints)
     @Field((type) => User)
     admin: User
 

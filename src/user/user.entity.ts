@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Task } from '../task/task.entity';
 import { Sprint } from 'src/sprint/sprint.entity';
+import { type } from 'os';
 
 @Entity()
 @ObjectType()
@@ -23,15 +24,15 @@ export class User {
   password: string;
 
   @Column('varchar', { length: 20 })
-  @Field()
+  @Field((type) => String)
   username: string;
 
   @Column('varchar', { length: 200 })
-  @Field()
+  @Field((type) => String)
   email: string;
 
-  @Column('varchar', { length: 50 })
-  @Field()
+  @Column('nvarchar', { length: 50 })
+  @Field((type) => String)
   displayName: string;
 
   @Column('varchar', { length: 10, nullable: true })
@@ -47,7 +48,7 @@ export class User {
 
   @OneToMany(() => Sprint, sprint => sprint.admin)
   @Field((type) => [Sprint], { nullable: true})
-  administratedSprints: Sprint[];
+  administratingSprints: Sprint[];
 
   @ManyToMany(() => Sprint, sprint => sprint.members)
   @Field((type) => [Sprint], { nullable: true})

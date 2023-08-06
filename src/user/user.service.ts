@@ -1,8 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
-import { hash } from 'bcrypt';
+import { FindOneOptions, Repository } from 'typeorm';
+import { hash, compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -48,8 +48,15 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  userRelationOptions: FindOneOptions<User> = {
+    relations: {
+      administratingSprints: true,
+      joinedSprints: true,
+    }
+  }
+
   async getUser(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id }, ...this.userRelationOptions});
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -57,7 +64,8 @@ export class UserService {
   }
 
   async findByUsername(username: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({ where: { username }, ...this.userRelationOptions});
+    console.log("User: ", user)
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -65,7 +73,7 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email }, ...this.userRelationOptions });
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -104,15 +112,29 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async updatePassword(id: string, password: string): Promise<User> {
+  async changePassword(id: string, oldPassword: string, newPassword: string) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException("User not found");
     }
-    const hashedPassword = await hash(password, 10);
+    const isPasswordCorrect = await compare(oldPassword, user.password);
+    if (!isPasswordCorrect) {
+      throw new UnauthorizedException("Password is incorrect");
+    }
+    const hashedPassword = await hash(newPassword, 10);
     user.password = hashedPassword;
     return await this.userRepository.save(user);
   }
+
+  // async updatePassword(id: string, password: string): Promise<User> {
+  //   const user = await this.userRepository.findOne({ where: { id } });
+  //   if (!user) {
+  //     throw new NotFoundException("User not found");
+  //   }
+  //   const hashedPassword = await hash(password, 10);
+  //   user.password = hashedPassword;
+  //   return await this.userRepository.save(user);
+  // }
 
   async updateDisplayName(id: string, displayName: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });

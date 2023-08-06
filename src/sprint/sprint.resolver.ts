@@ -16,15 +16,18 @@ export class SprintResolver {
 
     @UseGuards(AuthGuard)
     @Mutation(() => Sprint)
-    async createSprintVIA_TOKEN(@GqlUser() user: User, @Args('description') description: string) {
-        return this.sprintService.createSprint(description, user)
+    async createSprint(@GqlUser() user: User, @Args('description') description: string) {
+        const sprint = await this.sprintService.createSprint(description, user)
+        console.log("Sprint: ", sprint)
+        return sprint
+        // return this.sprintService.createSprint(description, user)
     }
 
-    @Mutation(() => Sprint)
-    async createSprintVIA_UID(@Args('description') description: string, @Args('uid') uid: string) {
-        const user = await this.userService.getUser(uid)
-        return this.sprintService.createSprint(description, user)
-    }
+    // @Mutation(() => Sprint)
+    // async createSprint_VIA_UID(@Args('description') description: string, @Args('uid') uid: string) {
+    //     const user = await this.userService.getUser(uid)
+    //     return this.sprintService.createSprint(description, user)
+    // }
 
     @Query(() => Sprint)
     async getSprint(@Args('id') id: string) {

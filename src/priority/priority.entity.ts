@@ -9,7 +9,7 @@ export class Priority {
     @Field((type) => ID)
     id: string;
 
-    @Column("varchar", { length: 16 })
+    @Column("nvarchar", { length: 16 })
     @Field((type) => String)
     name: string;
 }

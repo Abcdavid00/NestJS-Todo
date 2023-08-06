@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { hash, compare } from 'bcrypt';
@@ -18,10 +18,10 @@ export class AuthService {
         ]
         const [nameCheck, emailCheck] = await Promise.all(checker);
         if (!nameCheck) {
-            throw new BadRequestException('Username already exists');
+            throw new ConflictException('Username already exists');
         }
         if (!emailCheck) {
-            throw new BadRequestException('Email already exists');
+            throw new ConflictException('Email already exists');
         }
         const hashedPassword = await hash(password, 10);
         const user = await this.userService.createUser(username, hashedPassword, email, displayName);
@@ -31,13 +31,13 @@ export class AuthService {
     async LogIn(usernameOrEmail: string, password: string): Promise<[User, string]> {
         const user = await this.userService.getByUsernameOrEmail(usernameOrEmail);
         if (!user) {
-            throw new BadRequestException('Invalid username or email');
+            throw new NotFoundException('Invalid username or email');
         }
         const passwordValid = await compare(password, user.password);
         if (!passwordValid) {
             throw new UnauthorizedException('Invalid password');
         }
-        const payload = { username: user.username, sub: user.id };
+        const payload = { username: user.username, sub: user.id, email: user.email };
         const token = await this.jwtService.signAsync(payload);
         return [user, token]
     }

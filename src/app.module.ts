@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo'
-import { CoffeeModule } from './coffee/coffee.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ENTITIES } from './entities';
 import { UserModule } from './user/user.module';
@@ -34,7 +33,6 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
       // typePaths: ['./**/*.graphql'],
       driver: ApolloDriver,
     }),
-    // CoffeeModule,
     UserModule,
     TaskModule,
     SprintModule,
