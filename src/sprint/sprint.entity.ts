@@ -37,5 +37,5 @@ export class Sprint {
 
     @UpdateDateColumn()
     @Field((type) => Date)
-    modifydDate: Date
+    modifyDate: Date
 }
