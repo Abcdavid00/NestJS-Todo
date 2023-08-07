@@ -159,4 +159,10 @@ export class SprintService {
     log += `Deleted ${sprintRes.affected} sprint(s)`;
     return log;
   }
+
+  async filterAndSortTasks(sprint: Sprint, priority: string, status: string, sortBy: string, asc: boolean): Promise<Task[]> {
+    const filterdTasks = await this.taskService.filterTasks(sprint, priority, status);
+    if (sortBy === null || sortBy === undefined) return filterdTasks;
+    return this.taskService.sortTasks(filterdTasks, sortBy, asc);
+  }
 }

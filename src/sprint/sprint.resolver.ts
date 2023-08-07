@@ -1,7 +1,7 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { SprintService } from './sprint.service';
 import { Sprint } from './sprint.entity';
-import { MethodNotAllowedException, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { MethodNotAllowedException, NotFoundException, UnauthorizedException, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { GqlUser } from 'src/user/user.decorator';
 import { AuthGuard } from 'src/vendors/guards/auth.guard';
 import { User } from 'src/user/user.entity';
@@ -9,6 +9,7 @@ import { UserService } from 'src/user/user.service';
 import { PriorityService } from '../priority/priority.service';
 import { Task } from 'src/task/task.entity';
 import { TaskService } from 'src/task/task.service';
+import { TaskFilterDto, TaskSortDto } from './sprint.dto';
 
 @Resolver()
 export class SprintResolver {
@@ -103,7 +104,9 @@ export class SprintResolver {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         const priority = await this.priorityService.getPriority(priorityId)
-        console.log("Priority: ", priority.name)
+        if (!priority) {
+            throw new NotFoundException("Priority does not exist")
+        }
         return this.sprintService.addTask(sprint, name, description, status, priority, expireDate)
     }
 
@@ -124,6 +127,9 @@ export class SprintResolver {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         const priority = await this.priorityService.getPriority(priorityId)
+        if (!priority) {
+            throw new NotFoundException("Priority does not exist")
+        }
         return this.taskService.modifyTask(task, name, description, status, priority, expireDate)
     }
 
@@ -182,5 +188,26 @@ export class SprintResolver {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         return this.sprintService.deleteSprint(sprint)
+    }
+
+    @UseGuards(AuthGuard)
+    @Query(() => [Task])
+    @UsePipes(ValidationPipe)
+    async filterAndSortTasks(
+        @GqlUser() user: User,
+        @Args('filterOptions') filterOptions: TaskFilterDto,
+        @Args('sortOptions') sortOptions: TaskSortDto,
+    ) {
+        const sprint = await this.sprintService.getSprint(filterOptions.sprintId)
+        if (!sprint.members.map(member => member.id).includes(user["sub"])) {
+            throw new UnauthorizedException("You are not a member of this sprint")
+        }
+        return this.sprintService.filterAndSortTasks(
+            sprint,
+            filterOptions.priority,
+            filterOptions.status,
+            sortOptions.sortBy,
+            sortOptions.asc
+        )
     }
 }

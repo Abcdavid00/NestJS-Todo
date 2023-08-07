@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { DeleteResult, Repository } from 'typeorm';
+import { Injectable, MethodNotAllowedException } from '@nestjs/common';
+import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Priority } from 'src/priority/priority.entity';
 import { Sprint } from 'src/sprint/sprint.entity';
 import { User } from 'src/user/user.entity';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class TaskService {
@@ -39,14 +40,17 @@ export class TaskService {
 
   taskRelationOptions = {
     relations: {
-        sprint: true,
-        priority: true,
-        members: true
-    }
+      sprint: true,
+      priority: true,
+      members: true,
+    },
   };
 
   async getTask(id: string): Promise<Task> {
-    return this.taskRepository.findOne({ where: { id }, ...this.taskRelationOptions });
+    return this.taskRepository.findOne({
+      where: { id },
+      ...this.taskRelationOptions,
+    });
   }
 
   async addMembers(task: Task, members: User[]): Promise<Task> {
@@ -76,5 +80,65 @@ export class TaskService {
     task.priority = priority;
     task.expireDate = expireDate;
     return this.taskRepository.save(task);
+  }
+
+  async filterTasks(
+    sprint: Sprint,
+    priority: string,
+    status: string,
+  ): Promise<Task[]> {
+    const priorityWhereOption: FindOptionsWhere<Task> =
+      priority === null || priority === undefined
+        ? {}
+        : { priority: { name: priority } };
+    const statusWhereOption: FindOptionsWhere<Task> =
+      status === null || status === undefined ? {} : { status };
+    const whereOption: FindOptionsWhere<Task> = {
+      sprint: {
+        id: sprint.id,
+      },
+      ...priorityWhereOption,
+      ...statusWhereOption,
+    };
+    const tasks = await this.taskRepository.find({
+      where: whereOption,
+      relations: {
+        priority: true,
+        members: true,
+      }
+    });
+    return tasks;
+  }
+
+  sortTasks(
+    tasks: Task[],
+    sortBy: string,
+    asc: boolean,
+  ): Task[] {
+    if (tasks[0][sortBy] === null || tasks[0][sortBy] === undefined) {
+      throw new MethodNotAllowedException(`Sort tasks by ${sortBy} is not allowed`)
+    }
+    if (sortBy === 'priority') {
+      const sortedTasks = tasks.sort((a, b) => {
+        if (a[sortBy].name < b[sortBy].name) {
+          return asc ? -1 : 1;
+        }
+        if (a[sortBy].name > b[sortBy].name) {
+          return asc ? 1 : -1;
+        }
+        return 0;
+      });
+      return sortedTasks;
+    }
+    const sortedTasks = tasks.sort((a, b) => {
+      if (a[sortBy] < b[sortBy]) {
+        return asc ? -1 : 1;
+      }
+      if (a[sortBy] > b[sortBy]) {
+        return asc ? 1 : -1;
+      }
+      return 0;
+    });
+    return sortedTasks;
   }
 }
