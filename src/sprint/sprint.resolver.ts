@@ -24,8 +24,9 @@ export class SprintResolver {
         @Args('name') name: string,
         @Args('description') description: string
     ) {
+        // console.log("Create Sprint User: ", user)
         const sprint = await this.sprintService.createSprint(name, description, user)
-        console.log("Sprint: ", sprint)
+        // console.log("Sprint: ", sprint)
         return sprint
         // return this.sprintService.createSprint(description, user)
     }
@@ -43,7 +44,7 @@ export class SprintResolver {
         @Args('memberIds', { type: () => [String] }) memberIds: string[]
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         const members = await this.userService.getUsers(memberIds)
@@ -58,7 +59,7 @@ export class SprintResolver {
         @Args('memberIds', { type: () => [String] }) memberIds: string[]
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         if (memberIds.includes(sprint.admin.id)) {
@@ -77,7 +78,8 @@ export class SprintResolver {
         @Args('description') description: string
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        console.log(`Sprint Admin: ${sprint.admin.id} User: `)
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         return this.sprintService.modifySprint(sprint, name, description)
@@ -94,7 +96,7 @@ export class SprintResolver {
         @Args('expireDate') expireDate: Date
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         const priority = await this.priorityService.getPriority(priorityId)
@@ -109,7 +111,7 @@ export class SprintResolver {
         @Args('taskId') taskId: string
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         return this.sprintService.removeTask(sprint, taskId)
@@ -124,7 +126,7 @@ export class SprintResolver {
         @Args('memberIds', { type: () => [String] }) memberIds: string[]
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         return this.sprintService.assignMembers(sprint, taskId, memberIds)
@@ -139,9 +141,22 @@ export class SprintResolver {
         @Args('memberIds', { type: () => [String] }) memberIds: string[]
     ) {
         const sprint = await this.sprintService.getSprint(sprintId)
-        if (sprint.admin.id !== user.id) {
+        if (sprint.admin.id !== user["sub"]) {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         return this.sprintService.unassignMembers(sprint, taskId, memberIds)
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation(() => String)
+    async deleteSprint(
+        @GqlUser() user: User,
+        @Args('sprintId') sprintId: string
+    ) {
+        const sprint = await this.sprintService.getSprint(sprintId)
+        if (sprint.admin.id !== user["sub"]) {
+            throw new UnauthorizedException("You are not the admin of this sprint")
+        }
+        return this.sprintService.deleteSprint(sprint)
     }
 }
