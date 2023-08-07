@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Sprint } from './sprint.entity';
 import { DeleteResult, FindOneOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,9 +22,9 @@ export class SprintService {
   async createSprint(
     name: string,
     description: string,
-    admin: User,
+    adminId: string,
   ): Promise<Sprint> {
-    admin = await this.userService.getUser(admin.id);
+    const admin = await this.userService.getUser(adminId);
     console.log('Admin: ', admin);
     const members: User[] = [admin];
     const sprint = this.sprintRepository.create({
@@ -40,7 +40,10 @@ export class SprintService {
     relations: {
       admin: true,
       members: true,
-      tasks: true,
+      tasks: {
+        priority: true,
+        members: true,
+      }
     },
   };
 
@@ -50,7 +53,7 @@ export class SprintService {
       ...this.sprintRelationOptions,
     });
     if (!sprint) {
-      throw new Error('Sprint not found');
+      throw new NotFoundException('Sprint not found');
     }
     return sprint;
   }
@@ -84,27 +87,28 @@ export class SprintService {
     sprint: Sprint,
     name: string,
     description: string,
+    status: string,
     priority: Priority,
     expireDate: Date,
-  ): Promise<Sprint> {
-    console.log("Expire Date: ", expireDate);
-    const tSprint = await this.getSprint(sprint.id);
+  ): Promise<Task> {
     const task = await this.taskService.createTask(
       name,
       description,
-      tSprint,
+      status,
+      sprint,
       priority,
       expireDate,
     );
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Task: ', task);
     sprint.tasks = [...sprint.tasks, task];
-    return this.sprintRepository.save(sprint);
+    await this.sprintRepository.save(sprint);
+    return task
   }
 
-  async removeTask(sprint: Sprint, taskId: string): Promise<Sprint> {
+  async removeTask(sprint: Sprint, taskId: string): Promise<String> {
     sprint.tasks = sprint.tasks.filter((task) => task.id !== taskId);
-    await this.taskService.deleteTask(taskId);
-    return this.sprintRepository.save(sprint);
+    const res = await this.taskService.deleteTask(taskId);
+    await this.sprintRepository.save(sprint);
+    return `Deleted ${res.affected} task(s)`;
   }
 
   async assignMembers(

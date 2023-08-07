@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
 
     const request = GqlExecutionContext.create(context).getContext().req;
     const token = request.headers.authorization;
-    // console.log("Token: ", token);
+    console.log("Token: ", token);
     
     if (!token) {
       throw new UnauthorizedException('No token provided');
@@ -29,6 +29,7 @@ export class AuthGuard implements CanActivate {
           secret: JWT_SECRET,
         }
       );
+      console.log("Payload: ", payload)
       request.user = payload;
     } catch {
       throw new UnauthorizedException('Invalid token');

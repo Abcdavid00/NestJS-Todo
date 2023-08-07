@@ -8,11 +8,13 @@ import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PriorityService } from '../priority/priority.service';
 import { Task } from 'src/task/task.entity';
+import { TaskService } from 'src/task/task.service';
 
 @Resolver()
 export class SprintResolver {
     constructor(
         private readonly priorityService: PriorityService,
+        private readonly taskService: TaskService,
         private readonly sprintService: SprintService,
         private readonly userService: UserService,
     ) {}
@@ -25,7 +27,7 @@ export class SprintResolver {
         @Args('description') description: string
     ) {
         // console.log("Create Sprint User: ", user)
-        const sprint = await this.sprintService.createSprint(name, description, user)
+        const sprint = await this.sprintService.createSprint(name, description, user['sub'])
         // console.log("Sprint: ", sprint)
         return sprint
         // return this.sprintService.createSprint(description, user)
@@ -86,12 +88,13 @@ export class SprintResolver {
     }
 
     @UseGuards(AuthGuard)
-    @Mutation(() => Sprint)
+    @Mutation(() => Task)
     async addTask(
         @GqlUser() user: User,
         @Args('sprintId') sprintId: string,
         @Args('name') name: string,
         @Args('description') description: string,
+        @Args('status') status: string,
         @Args('priorityId') priorityId: string,
         @Args('expireDate') expireDate: Date
     ) {
@@ -101,11 +104,31 @@ export class SprintResolver {
         }
         const priority = await this.priorityService.getPriority(priorityId)
         console.log("Priority: ", priority.name)
-        return this.sprintService.addTask(sprint, name, description, priority, expireDate)
+        return this.sprintService.addTask(sprint, name, description, status, priority, expireDate)
     }
 
     @UseGuards(AuthGuard)
-    @Mutation(() => Sprint)
+    @Mutation(() => Task)
+    async modifyTask(
+        @GqlUser() user: User,
+        @Args('taskId') taskId: string,
+        @Args('name') name: string,
+        @Args('description') description: string,
+        @Args('status') status: string,
+        @Args('priorityId') priorityId: string,
+        @Args('expireDate') expireDate: Date
+    ) {
+        const task = await this.taskService.getTask(taskId)
+        const sprint = await this.sprintService.getSprint(task.sprint.id)
+        if (sprint.admin.id !== user["sub"]) {
+            throw new UnauthorizedException("You are not the admin of this sprint")
+        }
+        const priority = await this.priorityService.getPriority(priorityId)
+        return this.taskService.modifyTask(task, name, description, status, priority, expireDate)
+    }
+
+    @UseGuards(AuthGuard)
+    @Mutation(() => String)
     async removeTask(
         @GqlUser() user: User,
         @Args('sprintId') sprintId: string,

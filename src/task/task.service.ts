@@ -16,6 +16,7 @@ export class TaskService {
   async createTask(
     name: string,
     description: string,
+    status: string,
     sprint: Sprint,
     priority: Priority,
     expireDate: Date,
@@ -23,6 +24,7 @@ export class TaskService {
     const task = this.taskRepository.create({
       name,
       description,
+      status,
       sprint,
       priority,
       expireDate,
@@ -64,10 +66,14 @@ export class TaskService {
     task: Task,
     name: string,
     description: string,
+    status: string,
+    priority: Priority,
     expireDate: Date,
   ): Promise<Task> {
     task.name = name;
     task.description = description;
+    task.status = status;
+    task.priority = priority;
     task.expireDate = expireDate;
     return this.taskRepository.save(task);
   }
