@@ -15,7 +15,7 @@ export class Task {
     @Field((type) => String)
     name: string;
 
-    @Column("nvarchar", { length: 512, nullable: true })
+    @Column("text", { nullable: true })
     @Field((type) => String, { nullable: true })
     description: string;
 
