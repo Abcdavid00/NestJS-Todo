@@ -44,7 +44,7 @@ export class SprintService {
   };
 
   async getSprint(id: string): Promise<Sprint> {
-    const sprint = await this.sprintRepository.findOne({ where: { id } });
+    const sprint = await this.sprintRepository.findOne({ where: { id }, ...this.sprintRelationOptions});
     if (!sprint) {
       throw new Error('Sprint not found');
     }

@@ -44,7 +44,7 @@ export class TaskService {
   };
 
   async getTask(id: string): Promise<Task> {
-    return this.taskRepository.findOne({ where: { id } });
+    return this.taskRepository.findOne({ where: { id }, ...this.taskRelationOptions });
   }
 
   async addMembers(task: Task, members: User[]): Promise<Task> {
