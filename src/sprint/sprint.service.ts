@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Sprint } from './sprint.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { DeleteResult, FindOneOptions, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import { UserService } from '../user/user.service';
@@ -24,12 +24,14 @@ export class SprintService {
     description: string,
     admin: User,
   ): Promise<Sprint> {
+    console.log('Create Sprint User(2): ', admin);
     admin = await this.userService.getUser(admin.id);
+    console.log('Admin: ', admin);
     const members: User[] = [admin];
     const sprint = this.sprintRepository.create({
       name,
       description,
-      admin,
+      admin: admin,
       members,
     });
     return this.sprintRepository.save(sprint);
@@ -44,7 +46,10 @@ export class SprintService {
   };
 
   async getSprint(id: string): Promise<Sprint> {
-    const sprint = await this.sprintRepository.findOne({ where: { id }, ...this.sprintRelationOptions});
+    const sprint = await this.sprintRepository.findOne({
+      where: { id },
+      ...this.sprintRelationOptions,
+    });
     if (!sprint) {
       throw new Error('Sprint not found');
     }
@@ -110,10 +115,10 @@ export class SprintService {
     const commingUID = sprint.members.map((member) => member.id);
     const memberUID = task.members.map((member) => member.id);
     commingUID.forEach((id) => {
-        if (!memberUID.includes(id)) {
-            throw new UnauthorizedException(`User ID: ${id} not in sprint`);
-        }
-    })
+      if (!memberUID.includes(id)) {
+        throw new UnauthorizedException(`User ID: ${id} not in sprint`);
+      }
+    });
     return this.taskService.addMembers(task, commingUser);
   }
 
@@ -127,11 +132,25 @@ export class SprintService {
     const commingUID = sprint.members.map((member) => member.id);
     const memberUID = task.members.map((member) => member.id);
     commingUID.forEach((id) => {
-        if (!memberUID.includes(id)) {
-            throw new UnauthorizedException(`User ID: ${id} not in sprint`);
-        }
-    })
+      if (!memberUID.includes(id)) {
+        throw new UnauthorizedException(`User ID: ${id} not in sprint`);
+      }
+    });
     return this.taskService.removeMembers(task, commingUser);
   }
 
+  async deleteSprint(sprint: Sprint): Promise<string> {
+    let log = "";
+    const pros: Promise<DeleteResult>[] = [];
+    sprint.tasks.forEach(async (task) => {
+      pros.push(this.taskService.deleteTask(task.id));
+    });
+    const taskres = await Promise.all(pros);
+    taskres.forEach((r) => {
+        log += `Deleted ${r.affected} task(s)`;
+    });
+    const sprintRes: DeleteResult = await this.sprintRepository.delete(sprint.id);
+    log += `Deleted ${sprintRes.affected} sprint(s)`;
+    return log;
+  }
 }
