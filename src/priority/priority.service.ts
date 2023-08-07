@@ -9,7 +9,7 @@ export class PriorityService {
         @InjectRepository(Priority) private priorityRepository: Repository<Priority>,
     ) {}
 
-    async findAll(): Promise<Priority[]> {
+    async getAll(): Promise<Priority[]> {
         return this.priorityRepository.find();
     }
 

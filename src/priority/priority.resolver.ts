@@ -8,7 +8,7 @@ export class PriorityResolver {
 
   @Query((returns) => [Priority])
   getAllPriorities() {
-    return this.priorityService.findAll();
+    return this.priorityService.getAll();
   }
 
   @Query((returns) => Priority)
