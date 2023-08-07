@@ -14,7 +14,7 @@ export class PriorityResolver {
   @Query((returns) => Priority)
   getPriorityById(
     @Args('id') id: string,) {
-    return this.priorityService.findOneById(id);
+    return this.priorityService.getPriority(id);
   }
 
   @Mutation((returns) => Priority)

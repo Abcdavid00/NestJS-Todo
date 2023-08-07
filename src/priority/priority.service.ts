@@ -13,7 +13,7 @@ export class PriorityService {
         return this.priorityRepository.find();
     }
 
-    async findOneById(id: string): Promise<Priority | undefined> {
+    async getPriority(id: string): Promise<Priority | undefined> {
         return this.priorityRepository.findOne({ where: { id } });
     }
 

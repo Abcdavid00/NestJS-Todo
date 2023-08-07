@@ -8,6 +8,7 @@ import { PriorityService } from './priority.service';
     imports: [
         TypeOrmModule.forFeature([Priority])
     ],
+    exports: [PriorityService],
     providers: [PriorityResolver, PriorityService],
     
 })

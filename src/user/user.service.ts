@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, In, Repository } from 'typeorm';
 import { hash, compare } from 'bcrypt';
 
 @Injectable()
@@ -52,6 +52,7 @@ export class UserService {
     relations: {
       administratingSprints: true,
       joinedSprints: true,
+      tasks: true,
     }
   }
 
@@ -61,6 +62,10 @@ export class UserService {
       throw new NotFoundException("User not found");
     }
     return user;
+  }
+
+  async getUsers(id: string[]): Promise<User[]> {
+    return await this.userRepository.findBy({ id: In(id)});
   }
 
   async findByUsername(username: string): Promise<User> {
