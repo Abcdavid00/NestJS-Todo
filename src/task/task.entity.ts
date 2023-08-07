@@ -4,7 +4,6 @@ import { Priority } from '../priority/priority.entity';
 import { User } from "src/user/user.entity";
 import { Sprint } from "src/sprint/sprint.entity";
 
-
 @Entity()
 @ObjectType()
 export class Task {
@@ -32,13 +31,17 @@ export class Task {
     @Field((type) => Date, { nullable: true })
     expireDate: Date;
 
-    @OneToOne(() => Priority)
+    @Column("varchar", { length:32, default: "UNPICK" })
+    @Field((type) => String)
+    status: string;
+
+    @ManyToOne(() => Priority)
     @Field((type) => Priority)
     priority: Priority;
 
     @ManyToMany(() => User, user => user.tasks)
-    @Field((type) => [User], { nullable: true })
     @JoinTable()
+    @Field((type) => [User], { nullable: true })
     members: User[];
 
     @ManyToOne(() => Sprint, sprint => sprint.tasks)

@@ -42,8 +42,8 @@ export class User {
   phone?: string;
 
   @ManyToMany(() => Task, (task) => task.members)
-  @Field((type) => [Task], { nullable: true})
   @JoinTable()
+  @Field((type) => [Task], { nullable: true})
   tasks: Task[];
 
   @OneToMany(() => Sprint, sprint => sprint.admin)

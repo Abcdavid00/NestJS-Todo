@@ -24,7 +24,6 @@ export class SprintService {
     description: string,
     admin: User,
   ): Promise<Sprint> {
-    console.log('Create Sprint User(2): ', admin);
     admin = await this.userService.getUser(admin.id);
     console.log('Admin: ', admin);
     const members: User[] = [admin];
@@ -88,13 +87,16 @@ export class SprintService {
     priority: Priority,
     expireDate: Date,
   ): Promise<Sprint> {
+    console.log("Expire Date: ", expireDate);
+    const tSprint = await this.getSprint(sprint.id);
     const task = await this.taskService.createTask(
       name,
       description,
-      sprint,
+      tSprint,
       priority,
       expireDate,
     );
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Task: ', task);
     sprint.tasks = [...sprint.tasks, task];
     return this.sprintRepository.save(sprint);
   }

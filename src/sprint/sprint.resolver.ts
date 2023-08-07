@@ -100,6 +100,7 @@ export class SprintResolver {
             throw new UnauthorizedException("You are not the admin of this sprint")
         }
         const priority = await this.priorityService.getPriority(priorityId)
+        console.log("Priority: ", priority.name)
         return this.sprintService.addTask(sprint, name, description, priority, expireDate)
     }
 

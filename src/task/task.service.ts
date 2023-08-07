@@ -10,7 +10,7 @@ import { User } from 'src/user/user.entity';
 export class TaskService {
   constructor(
     @InjectRepository(Task)
-    private readonly taskRepository: Repository<Task>,
+    private taskRepository: Repository<Task>,
   ) {}
 
   async createTask(
