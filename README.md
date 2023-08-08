@@ -23,7 +23,7 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 # ERD
-![Alt text](https://res.cloudinary.com/dwskvqnkc/image/upload/v1691484471/vfa_blog_app_store/364633791_953843745879562_6584448829665220864_n_j8qntm.png)
+![alt text](/ERD.png)
 
 ## Features
 + User authentication with JWT
