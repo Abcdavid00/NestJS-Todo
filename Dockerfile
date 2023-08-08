@@ -6,7 +6,7 @@ RUN yarn global add @nestjs/cli
 
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+RUN yarn --frozen-lockfile
 
 COPY . .
 
