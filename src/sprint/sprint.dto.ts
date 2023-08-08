@@ -9,13 +9,17 @@ export class TaskFilterDto {
 
   @Field(() => String, {nullable: true})
   @IsOptional()
-  @IsNotEmpty()
-  priority: string;
+  keyword: string;
 
-  @Field(() => String, {nullable: true})
+  @Field(() => [String], {nullable: true})
   @IsOptional()
   @IsNotEmpty()
-  status: string;
+  priority: string[];
+
+  @Field(() => [String], {nullable: true})
+  @IsOptional()
+  @IsNotEmpty()
+  status: string[];
 }
 
 @InputType()

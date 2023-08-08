@@ -8,6 +8,7 @@ import { Priority } from 'src/priority/priority.entity';
 import { TaskService } from 'src/task/task.service';
 import { PriorityService } from 'src/priority/priority.service';
 import { Task } from 'src/task/task.entity';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class SprintService {
@@ -160,8 +161,9 @@ export class SprintService {
     return log;
   }
 
-  async filterAndSortTasks(sprint: Sprint, priority: string, status: string, sortBy: string, asc: boolean): Promise<Task[]> {
-    const filterdTasks = await this.taskService.filterTasks(sprint, priority, status);
+  async filterAndSortTasks(sprint: Sprint, keyword: string, priority: string[], status: string[], sortBy: string, asc: boolean): Promise<Task[]> {
+    const filterdTasks = await this.taskService.comlicatedFilterTasks(sprint, keyword, priority, status);
+    if (filterdTasks.length === 0) return filterdTasks;
     if (sortBy === null || sortBy === undefined) return filterdTasks;
     return this.taskService.sortTasks(filterdTasks, sortBy, asc);
   }

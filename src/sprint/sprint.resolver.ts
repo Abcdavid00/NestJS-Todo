@@ -204,6 +204,7 @@ export class SprintResolver {
         }
         return this.sprintService.filterAndSortTasks(
             sprint,
+            filterOptions.keyword,
             filterOptions.priority,
             filterOptions.status,
             sortOptions.sortBy,

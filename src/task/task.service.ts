@@ -1,11 +1,16 @@
-import { Injectable, MethodNotAllowedException } from '@nestjs/common';
-import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { Injectable, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
+import {
+  Any,
+  DeleteResult,
+  Equal,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Priority } from 'src/priority/priority.entity';
 import { Sprint } from 'src/sprint/sprint.entity';
 import { User } from 'src/user/user.entity';
-import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class TaskService {
@@ -105,18 +110,77 @@ export class TaskService {
       relations: {
         priority: true,
         members: true,
-      }
+      },
     });
     return tasks;
   }
 
-  sortTasks(
-    tasks: Task[],
-    sortBy: string,
-    asc: boolean,
-  ): Task[] {
+  async comlicatedFilterTasks(
+    sprint: Sprint,
+    keyword: string,
+    priorities: string[],
+    statuses: string[],
+  ): Promise<Task[]> {
+    console.log('Filter Options: ');
+    console.log(`Sprint: ${sprint.id}`);
+    console.log(`Keywords: ${keyword}`);
+    console.log(`Priorities: ${priorities}`);
+    console.log(`Statuses: ${statuses}`);
+
+    const priorityWhereOption: FindOptionsWhere<Task> = {
+      priority:
+        priorities.length === 0
+          ? {}
+          : priorities.map((priority) => ({ name: priority })),
+    };
+
+    const tasks = await this.taskRepository.find({
+      where:
+        (statuses === null || statuses === undefined || statuses?.length === 0)
+          ? {
+              sprint: {
+                id: sprint.id,
+              },
+              ...priorityWhereOption,
+            }
+          : statuses.map((status) => ({
+              sprint: {
+                id: sprint.id,
+              },
+              ...priorityWhereOption,
+              status: status,
+          })),
+      relations: {
+        priority: true,
+        members: true,
+      },
+    });
+    console.log(`Keyword type: ${typeof keyword}`)
+    if (keyword === null || keyword === undefined || keyword?.trim().length === 0) {
+      console.log("Skipping search")
+      return tasks;
+    }
+    console.log("Searching...")
+    keyword = keyword.toLowerCase();
+    const filteredTasks = tasks.filter((task) => {
+      if (task.name === null || task.name === undefined) {
+        return false;
+      }
+      if (task.description === null || task.description === undefined) {
+        return false;
+      }
+      const taskName = task.name.toLowerCase();
+      const taskDescription = task.description.toLowerCase();
+      return taskName.includes(keyword) || taskDescription.includes(keyword);
+    });
+    return filteredTasks;
+  }
+
+  sortTasks(tasks: Task[], sortBy: string, asc: boolean): Task[] {
     if (tasks[0][sortBy] === null || tasks[0][sortBy] === undefined) {
-      throw new MethodNotAllowedException(`Sort tasks by ${sortBy} is not allowed`)
+      throw new MethodNotAllowedException(
+        `Sort tasks by ${sortBy} is not allowed`,
+      );
     }
     if (sortBy === 'priority') {
       const sortedTasks = tasks.sort((a, b) => {
