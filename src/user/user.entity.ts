@@ -42,7 +42,7 @@ export class User {
   phone?: string;
 
   @ManyToMany(() => Task, (task) => task.members)
-  @JoinTable()
+  // @JoinTable()
   @Field((type) => [Task], { nullable: true})
   tasks: Task[];
 
@@ -52,7 +52,7 @@ export class User {
 
   @ManyToMany(() => Sprint, sprint => sprint.members)
   @Field((type) => [Sprint], { nullable: true})
-  @JoinTable()
+  // @JoinTable()
   joinedSprints: Sprint[];
 
   @CreateDateColumn()
