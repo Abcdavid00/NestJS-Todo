@@ -10,6 +10,7 @@ import { TaskModule } from './task/task.module';
 import { SprintModule } from './sprint/sprint.module';
 import { PriorityModule } from './priority/priority.module';
 import { AuthModule } from './auth/auth.module';
+import { PriorityService } from './priority/priority.service';
 import graphQLConfig from './configs/db/graphQL';
 
 const DATABASE = process.env.MYSQL_DATABASE;
@@ -37,6 +38,6 @@ const DATABASE_PASSWORD = process.env.MYSQL_PASSWORD;
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PriorityService],
 })
 export class AppModule {}
